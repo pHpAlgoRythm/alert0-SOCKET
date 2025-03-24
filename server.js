@@ -1,52 +1,41 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-const { Socket } = require('dgram');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
+
+// Enable CORS for HTTP requests
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  })
+);
+
+// Create a Socket.IO server with CORS enabled
 const io = new Server(server, {
-    cors: {
-        origin : '*',
-        methods: ['GET', 'POST']
-    }
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
 });
 
-app.use(cors());
-app.use(express.json());
+io.on("connection", (socket) => {
+  socket.on('send', (message) => {
+    io.emit('receive', message);
+  });
 
-let clients = [];
+  socket.on('register', (data) => {
+    io.emit('PendingUser');
+  });
 
-io.on('connection', (socket)=> {
-    console.log('A user Connected:', socket.id);
-    clients.push(socket);
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected', socket.id);
-        clients = clients.filter(client => client !== socket);
-    });
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
 });
 
-app.post('/broadcast', (req, res) => {
-    try{
-        const {user} = req.body;
-        if(!user){
-            return res.status(400).json({message: 'user data missing'});
-
-        }
-        console.log("Broadcasting new user:", user);
-
-        // Emit event to all connected clients
-        io.emit('PendingUser', user);
-
-        res.status(200).json({ message: "User broadcasted" });
-    } catch (error) {
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
-    }
-});
-
-const PORT =  3000;
-server.listen(PORT, () => {
-    console.log(`WebSocket server running on port ${PORT}`);
+server.listen(8080, () => {
+  console.log("Server running on port 8080");
 });
