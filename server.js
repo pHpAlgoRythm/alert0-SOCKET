@@ -31,6 +31,10 @@ io.on("connection", (socket) => {
     io.emit('PendingUser');
   });
 
+  socket.on('updateResidents', (data) => {
+    io.emit('updatedResidents')
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
