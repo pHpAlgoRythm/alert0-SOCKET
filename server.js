@@ -35,6 +35,10 @@ io.on("connection", (socket) => {
     io.emit('updatedResidents')
   });
 
+  socket.on('emergencyRequest', (data) => {
+    io.emit('emergencyRequests')
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
