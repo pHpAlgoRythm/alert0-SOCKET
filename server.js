@@ -39,6 +39,13 @@ io.on("connection", (socket) => {
     io.emit('emergencyRequests')
   });
 
+  socket.on('respond', () => {
+    console.log('Received respond event from client');
+    
+    io.emit('responded', { message: 'Driver has responded' });
+    console.log('Emitted responded event');
+  });
+
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
