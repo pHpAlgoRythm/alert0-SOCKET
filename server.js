@@ -13,7 +13,7 @@ app.use(
     methods: ["GET", "POST"],
   })
 );
-
+1
 // Create a Socket.IO server with CORS enabled
 const io = new Server(server, {
   cors: {
